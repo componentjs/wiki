@@ -5,7 +5,7 @@
 
 var request = require('superagent')
   , Batch = require('batch')
-  , jsdom = require('jsdom');
+  , jquery = require('cheerio').load;
 
 /**
  * Wiki url.
@@ -20,12 +20,6 @@ var wiki = 'https://github.com/component/component/wiki/Components';
 var remote = 'https://github.com';
 
 /**
- * jQuery url.
- */
-
-var jquery = 'http://code.jquery.com/jquery-1.5.min.js';
-
-/**
  * Fetch component.json files and invoke `fn(err, pkgs)`.
  *
  * @param {Function} fn
@@ -37,49 +31,41 @@ module.exports = function(fn){
 
   request
   .get(wiki)
-  .end(function(res){
-    jsdom.env(res.text, [jquery], function(err, window){
-      if (err) throw err;
-      var $ = window.$;
+  .end(function(err, res){
+    if (err) return fn(err);
+    var $ = jquery(res.text);
 
-      var lists = $('#wiki-body h2 + ul');
+    $('#wiki-body h2 + ul li').each(function(){
+      var a = $(this).find('a');
+      var url = a.attr('href').replace('://', '://raw.') + '/master/component.json';
 
-      lists.each(function(){
-        var items = $(this).find('li');
+      batch.push(function(done){
+        request
+        .get(url)
+        .end(function(err, res){
+          if (err || !res.ok) {
+            console.warn('failed %s (%d)', url, res.status);
+            return done(err);
+          }
 
-        items.each(function(){
-          var a = $(this).find('a')[0];
+          try {
+            var obj = JSON.parse(res.text);
 
-          var url = a.href.replace('://', '://raw.') + '/master/component.json';
-          batch.push(function(done){
-            request
-            .get(url)
-            .end(function(res){
-              if (!res.ok) {
-                console.warn('failed %s (%d)', url, res.status);
-                return done();
-              }
+            if (!obj.repo) {
+              var repo = a.text();
+              console.warn('"repo" missing for %s', repo);
+              // TODO: remove and warn user via GH api
+              obj.repo = repo;
+            }
 
-              try {
-                var obj = JSON.parse(res.text);
-
-                if (!obj.repo) {
-                  var repo = a.textContent;
-                  console.warn('"repo" missing for %s', repo);
-                  // TODO: remove and warn user via GH api
-                  obj.repo = repo;
-                }
-
-                done(null, obj);
-              } catch (err) {
-                done(err);
-              }
-            })
-          })
-        })
-      })
-
-      batch.end(fn);
+            done(null, obj);
+          } catch (err) {
+            done(err);
+          }
+        });
+      });
     });
+
+    batch.end(fn);
   });
 };
