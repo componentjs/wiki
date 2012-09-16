@@ -61,7 +61,16 @@ module.exports = function(fn){
               }
 
               try {
-                done(null, JSON.parse(res.text));
+                var obj = JSON.parse(res.text);
+
+                if (!obj.repo) {
+                  var repo = a.textContent;
+                  console.warn('"repo" missing for %s', repo);
+                  // TODO: remove and warn user via GH api
+                  obj.repo = repo;
+                }
+
+                done(null, obj);
               } catch (err) {
                 done(err);
               }
