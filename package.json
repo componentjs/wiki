@@ -1,0 +1,15 @@
+{
+  "name": "component-wiki",
+  "version": "0.0.1",
+  "description": "component wiki package fetcher",
+  "main": "index.js",
+  "keywords": [
+    "component",
+    "registry"
+  ],
+  "dependencies": {
+    "batch": "*",
+    "jsdom": "0.2.15",
+    "superagent": "0.9.1"
+  }
+}
