@@ -5,7 +5,7 @@
 
 var request = require('superagent')
   , Batch = require('batch')
-  , jsdom = require('jsdom');
+  , jquery = require('cheerio').load;
 
 /**
  * Wiki url.
@@ -18,12 +18,6 @@ var wiki = 'https://github.com/component/component/wiki/Components';
  */
 
 var remote = 'https://github.com';
-
-/**
- * jQuery url.
- */
-
-var jquery = 'http://code.jquery.com/jquery-1.5.min.js';
 
 /**
  * Fetch component.json files and invoke `fn(err, pkgs)`.
