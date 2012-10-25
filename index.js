@@ -61,7 +61,9 @@ module.exports = function(fn){
 
             done(null, obj);
           } catch (err) {
-            batch.emit('json error', err);
+            err.url = url;
+            err.json = true;
+            batch.emit('error', err);
             done();
           }
         });
