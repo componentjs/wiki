@@ -23,6 +23,7 @@ var remote = 'https://github.com';
  * Fetch component.json files and invoke `fn(err, pkgs)`.
  *
  * @param {Function} fn
+ * @return {Batch}
  * @api public
  */
 
@@ -69,4 +70,6 @@ module.exports = function(fn){
 
     batch.end(fn);
   });
+
+  return batch;
 };
