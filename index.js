@@ -60,7 +60,8 @@ module.exports = function(fn){
 
             done(null, obj);
           } catch (err) {
-            done(err);
+            batch.emit('json error', err);
+            done();
           }
         });
       });
