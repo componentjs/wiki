@@ -38,7 +38,9 @@ module.exports = function(fn){
 
     $('#wiki-body h2 + ul li').each(function(){
       var a = $(this).find('a');
-      var url = a.attr('href').replace('://', '://raw.') + '/master/component.json';
+      var href = a.attr('href').replace(/\/$/, '') // remove trailing slash
+
+      var url = href.replace('://', '://raw.') + '/master/component.json';
 
       batch.push(function(done){
         request
