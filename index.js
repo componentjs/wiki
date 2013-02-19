@@ -47,8 +47,8 @@ module.exports = function(fn){
         .get(url)
         .end(function(err, res){
           if (err || !res.ok) {
-            console.warn('failed %s (%d)', url, res.status);
-            return done(err);
+            console.warn('failed %s (%d)', url, res && res.status);
+            return done();
           }
 
           try {
